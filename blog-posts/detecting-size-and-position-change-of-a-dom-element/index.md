@@ -36,26 +36,23 @@ Another problem occurs when resizing browser window, since `rootMargin` set in p
 
 ![resized window](./resized_window.png)
 
-The solution to this may be calculating `rootMargin` in percents relation of the element's left and top coordinates to viewport's width and hight respectively. Now `rootMargin` is dynamic, `rootBounds` rectangle has a fixed size, but this way it runs away from the element on window resize. Although it doesn't prevent position change from being detected, when both element and  detector are able to move, it makes the whole solution slightly less predicatble and adds more edge cases to check.
+The solution to this may be calculating `rootMargin` in percents relation of the element's left and top coordinates to viewport's width and hight respectively. Now `rootMargin` is dynamic, `rootBounds` rectangle has a fixed size, but this way it runs away from the element on window resize. Although it doesn't prevent position change from being detected, when both element and detector are able to move, it makes the whole solution slightly less predicatble and adds more edge cases to check.
 
 ![resized window solution](./resized_window_solution.png)
 
-An observed element itself can also change its size. This entails the same consequences as described above. This can be possibly solved by using two `IntersectionObservers` with the cropped `rootBounds` rectangle per element, inner and outer. One detects size decrease, the other one detects size increase.
-They both would be needed to be recreated after every resize or position change.
-Another solution to this problem may be to use `ResizeObserver` in combination with `IntersectionObserver`.
+An observed element itself can also change its size. This entails the same consequences as described above. This can be possibly solved by using two `IntersectionObservers` with the cropped `rootBounds` rectangle per element, inner and outer. One detects size decrease, the other one detects size increase. They both would be needed to be recreated after every resize or position change. Another solution to this problem may be to use `ResizeObserver` in combination with `IntersectionObserver`.
 
 This already gets us closer to the 4-observers concept.
 
 ## 4 observers
 
-Keeping in mind all edge cases of the approach with `rootBounds` rectangle cropped to the target element size, I realized it would be much easier to observe each side of the element's bounding box instead of an element as a whole. No matter in which direction an element moves, its position or size change will be relibly detected by at least one observer. For that an element must be at least partly visible. 
+Keeping in mind all edge cases of the approach with `rootBounds` rectangle cropped to the target element size, I realized it would be much easier to observe each side of the element's bounding box instead of an element as a whole. No matter in which direction an element moves, its position or size change will be relibly detected by at least one observer. For that an element must be at least partly visible.
 
-The algorithm is simple: we create 4 observers whose `rootBounds` rectangles initially intersect each side of the observed element by 2 pixels. If an intersection deviates from the range between 1 and 2 pixels in any direction, position or size change is detected. Since the same change can be detected by more than one observer, we invoke the `.takeRecords()` method of the rest observers in order to gather pending records and prevent repetetive callback function calls. Then we mark those observers for recreation whose records we collected. In the worst case (diagonal movement) it would be all 4. Then we "unobserve" all 4 observers, start a [`requestAnimationFrame` loop](https://github.com/itihon/request-animation-frame-loop/) and keep it running until the element's bounding rectangle stops changing. Once it happens, we stop the loop, and recreate the marked observers. 
+The algorithm is simple: we create 4 observers whose `rootBounds` rectangles initially intersect each side of the observed element by 2 pixels. If an intersection deviates from the range between 1 and 2 pixels in any direction, position or size change is detected. Since the same change can be detected by more than one observer, we invoke the `.takeRecords()` method of the rest observers in order to gather pending records and prevent repetetive callback function calls. Then we mark those observers for recreation whose records we collected. In the worst case (diagonal movement) it would be all 4. Then we "unobserve" all 4 observers, start a [`requestAnimationFrame` loop](https://github.com/itihon/request-animation-frame-loop/) and keep it running until the element's bounding rectangle stops changing. Once it happens, we stop the loop, and recreate the marked observers.
 
 ![position observer flow chart](./position_observer_flow_chart.png)
 
-This looks more straithforward and implies much less edge cases to handle. If position change happens in between observer creation and its first callback invokation, we just repeat the cycle as if it was actual position change detection but only if the target element is inside document's viewport boundaries. This is a protection against an infinite loop.
-Whereas in the "cropped observer" approach, due to its variaty of edge cases, I had to implement the mechanics to distinguish between the first call of a callback after the `IntersectionObserver().observe()` method invokation and an actual intersection change notification.
+This looks more straithforward and implies much less edge cases to handle. If position change happens in between observer creation and its first callback invokation, we just repeat the cycle as if it was actual position change detection but only if the target element is inside document's viewport boundaries. This is a protection against an infinite loop. Whereas in the "cropped observer" approach, due to its variaty of edge cases, I had to implement the mechanics to distinguish between the first call of a callback after the `IntersectionObserver().observe()` method invokation and an actual intersection change notification.
 
 ### Why not to consider resize and scroll event handlers?
 
@@ -72,19 +69,25 @@ As I already mentioned this case above, when a target element can possibly be pa
 It may seem logical at first glance to use `visualViewport.height` or `window.innerHeight` in order to calculate the bottom margin of `rootMargin`. This will not be consistent among mobile and desktop screens if `minimum-scale=1.0` is not specified in the meta tag.
 
 ```html
-<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0" />
 ```
 
 Open developer tools, set the desktop view mode and put the spippet down below in the console. Then switch to the mobile view mode, refresh the page and paste the snippet again. See the difference.
 
 ```js
-var obs = new IntersectionObserver((entries) => { 
+var obs = new IntersectionObserver(
+  entries => {
     console.log(
-        'rootBounds.height:', entries[0].rootBounds.height, 
-        'visualViewport.height:', window.visualViewport.height,
-        'window.innerHeight:', window.innerHeight,
-    ); 
-}, {root: document});
+      'rootBounds.height:',
+      entries[0].rootBounds.height,
+      'visualViewport.height:',
+      window.visualViewport.height,
+      'window.innerHeight:',
+      window.innerHeight,
+    );
+  },
+  { root: document },
+);
 
 const longDiv = document.createElement('div');
 longDiv.style.width = `${20000}px`;
@@ -95,13 +98,13 @@ document.body.appendChild(longDiv);
 obs.observe(document.documentElement);
 ```
 
-It seems the most reliable way is to use viewport dimensions of an already created instance of `IntersectionObserver` (since it already calculated them for itself) to calculate `rootMargin` for another instance. This way we are dealing with the same source of truth and the same units regardles of scaling. 
+It seems the most reliable way is to use viewport dimensions of an already created instance of `IntersectionObserver` (since it already calculated them for itself) to calculate `rootMargin` for another instance. This way we are dealing with the same source of truth and the same units regardles of scaling.
 
 ```js
 // initial viewport rect
-const viewportRect = await new Promise((res) => {
+const viewportRect = await new Promise(res => {
   const observer = new IntersectionObserver(
-    (entries) => {
+    entries => {
       res(entries[0].rootBounds);
       observer.unobserve(document.documentElement);
     },
@@ -117,15 +120,15 @@ const { width: viewportWidth, height: viewportHeight } = viewportRect;
 
 I couldn't finish without mentioning this hacky approach. If you need to stick one element to another one (target element) without employing any kind of position change observation, you can wrap the element into an auxiliary container with width and height equal to 0, so that it doesn't interfere with the natural document flow. Put this zero-sized container into the target's parent container right next to the target element using:
 
-```js 
-target.insertAdjacentElement("afterend", zeroSizedContainer);
+```js
+target.insertAdjacentElement('afterend', zeroSizedContainer);
 ```
 
-Set the necessary offset for the element inside the zero-sized container and let the browser do the job. 
+Set the necessary offset for the element inside the zero-sized container and let the browser do the job.
 
-Limitations for this approach: 
-  - When the target's parent container has flexbox layout with set `gap` or `justify-content: space-between;` it will create gaps and spaces for that zero-sized container.
-  - And it will definetely break the target's parent container grid layout.
+Limitations for this approach:
+
+- When the target's parent container has flexbox layout with set `gap` or `justify-content: space-between;` it will create gaps and spaces for that zero-sized container.
+- And it will definetely break the target's parent container grid layout.
 
 These limitations actually were the reason I started this project.
-
