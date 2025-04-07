@@ -3,7 +3,7 @@ published: false
 title: 'Detecting size and position change of a DOM element as a result of scroll, resize or zoom with IntersectionObserver.'
 cover_image: 'https://raw.githubusercontent.com/itihon/itihon.dev.to/master/blog-posts/detecting-size-and-position-change-of-a-dom-element/assets/cover.png'
 description: 'This article describes complications of observing position and size change of a DOM element'
-tags: position, resize, observer, scroll, intersectionobserver
+tags: position, resize, scroll, intersectionobserver
 series:
 canonical_url:
 ---
