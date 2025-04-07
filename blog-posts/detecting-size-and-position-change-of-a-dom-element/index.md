@@ -24,19 +24,19 @@ One of possible approaches is to crop the root's bounding box to the size of the
 
 When an observed element is partly overlapped by its scrollable parent container, it creates a situation in which `intersectionRatio` doesn't change when the element moves until it is fully visible, therefore position change can not be detected.
 
-![partly ovelapped](./partly_overlapped.png)
+![partly ovelapped](./assets/partly_overlapped.png)
 
 The solution may be to calculate `rootMargin` so that `rootBounds` rectangle is captured inside the overlapping container and never leaves its boundaries. When the observed element is fully scrolled out of view, we just "switch" the observer to full vewport size to detect when the element gets visible again, so when it happens, we "switch" back to the cropped size.
 
-![captured root](./captured_root.png)
+![captured root](./assets/captured_root.png)
 
 Another problem occurs when resizing browser window, since `rootMargin` set in pixels it is static, `rootBounds` rectangle shrinks and expands with the window, creating "blind areas" with `intersectionRatio = 1.0`.
 
-![resized window](./resized_window.png)
+![resized window](./assets/resized_window.png)
 
 The solution to this may be calculating `rootMargin` in percents relation of the element's left and top coordinates to viewport's width and hight respectively. Now `rootMargin` is dynamic, `rootBounds` rectangle has a fixed size, but this way it runs away from the element on window resize. Although it doesn't prevent position change from being detected, when both element and detector are able to move, it makes the whole solution slightly less predicatble and adds more edge cases to check.
 
-![resized window solution](./resized_window_solution.png)
+![resized window solution](./assets/resized_window_solution.png)
 
 An observed element itself can also change its size. This entails the same consequences as described above. This can be possibly solved by using two `IntersectionObservers` with the cropped `rootBounds` rectangle per element, inner and outer. One detects size decrease, the other one detects size increase. They both would be needed to be recreated after every resize or position change. Another solution to this problem may be to use `ResizeObserver` in combination with `IntersectionObserver`.
 
@@ -48,7 +48,7 @@ Keeping in mind all edge cases of the approach with `rootBounds` rectangle cropp
 
 The algorithm is simple: we create 4 observers whose `rootBounds` rectangles initially intersect each side of the observed element by 2 pixels. If an intersection deviates from the range between 1 and 2 pixels in any direction, position or size change is detected. Since the same change can be detected by more than one observer, we invoke the `.takeRecords()` method of the rest observers in order to gather pending records and prevent repetetive callback function calls. Then we mark those observers for recreation whose records we collected. In the worst case (diagonal movement) it would be all 4. Then we "unobserve" all 4 observers, start a [`requestAnimationFrame` loop](https://github.com/itihon/request-animation-frame-loop/) and keep it running until the element's bounding rectangle stops changing. Once it happens, we stop the loop, and recreate the marked observers.
 
-![position observer flow chart](./position_observer_flow_chart.png)
+![position observer flow chart](./assets/position_observer_flow_chart.png)
 
 This looks more straithforward and implies much less edge cases to handle. If position change happens in between observer creation and its first callback invokation, we just repeat the cycle as if it was actual position change detection but only if the target element is inside document's viewport boundaries. This is a protection against an infinite loop. Whereas in the "cropped observer" approach, due to its variaty of edge cases, I had to implement the mechanics to distinguish between the first call of a callback after the `IntersectionObserver().observe()` method invokation and an actual intersection change notification.
 
