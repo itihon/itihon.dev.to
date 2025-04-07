@@ -4,8 +4,6 @@ title: 'Detecting size and position change of a DOM element as a result of scrol
 cover_image: 'https://raw.githubusercontent.com/itihon/itihon.dev.to/master/blog-posts/detecting-size-and-position-change-of-a-dom-element/assets/cover.png'
 description: 'Description of the article'
 tags: position, resize, observer, scroll, intersectionobserver
-series:
-canonical_url:
 ---
 
 I recently needed a solution to observe DOM element's position change in order to adjust another element accordingly, which might be placed beside as well as above or below the observed element. I didn't manage to find a solution that would satisfy my needs, under any circumstances reliably detect any kind of position change caused by scroll, resize, layout change or zoom and at the same time wouldn't hang in the background constantly polling the element. Luckily, I came across the article: [Observing position-change of HTML elements using Intersection Observer](https://dev.to/ajk-essential/observing-position-change-of-html-elements-using-intersection-observer-12de). It describes a reliable method and gave me a good foundation to build up on.
