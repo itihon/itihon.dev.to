@@ -1,8 +1,8 @@
 {
-  "name": "dev.to",
+  "name": "itihon.dev.to",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR-USERNAME/YOUR-REPO.git"
+    "url": "https://github.com/itihon/itihon.dev.to.git"
   },
   "scripts": {
     "prettier": "prettier",
