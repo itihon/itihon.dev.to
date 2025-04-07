@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: 'Detecting size and position change of a DOM element as a result of scroll, resize or zoom with IntersectionObserver.'
 cover_image: 'https://raw.githubusercontent.com/itihon/itihon.dev.to/master/blog-posts/detecting-size-and-position-change-of-a-dom-element/assets/cover.png'
 description: 'This article describes complications of observing position and size change of a DOM element'
@@ -131,4 +131,4 @@ Limitations for this approach:
 - When the target's parent container has flexbox layout with set `gap` or `justify-content: space-between;` it will create gaps and spaces for that zero-sized container.
 - And it will definetely break the target's parent container grid layout.
 
-These limitations actually were the reason I started this project.
+These limitations actually were the reason I started this little project.
