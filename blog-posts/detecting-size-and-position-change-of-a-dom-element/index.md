@@ -52,7 +52,7 @@ The algorithm is simple: we create 4 observers whose `rootBounds` rectangles ini
 
 ![position observer flow chart](./assets/position_observer_flow_chart.png)
 
-This looks more straithforward and implies much less edge cases to handle. If position change happens in between observer creation and its first callback invokation, we just repeat the cycle as if it was actual position change detection but only if the target element is inside document's viewport boundaries. This is a protection against an infinite loop. Whereas in the "cropped observer" approach, due to its variaty of edge cases, I had to implement the mechanics to distinguish between the first call of a callback after the `IntersectionObserver().observe()` method invokation and an actual intersection change notification.
+This looks more straithforward and implies much less edge cases to handle. If position change happens in between observer creation and its first callback invokation, we just repeat the cycle as if it was actual position change detection but only if the target element is inside document's viewport boundaries. This is a protection against an infinite loop. Whereas in the "cropped observer" approach, due to its variaty of edge cases, I had to implement the mechanics to distinguish between the first call of a callback after the `new IntersectionObserver().observe()` method invokation and an actual intersection change notification.
 
 ### Why not to consider resize and scroll event handlers?
 
