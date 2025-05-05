@@ -14,7 +14,7 @@ As a result I implemented a hybrid approach that uses four `IntersectionObserver
 
 **See [Position observer](https://itihon.github.io/position-observer/) demo.**
 
-In this article I want to describe some caveats discovered while experimenting with `IntersectionObserver`, when you shouldn't rely on `intersectionRect` and `visualViewport` size, and consider an alternative way when you can do without observing element's position change.
+In this article I want to describe some pitfalls discovered while experimenting with `IntersectionObserver`, when you shouldn't rely on `intersectionRect` and `visualViewport` size, and consider an alternative way when you can do without observing element's position change.
 
 ## What for?
 
@@ -22,7 +22,7 @@ A typical use case, as I mentioned above, is when you have two DOM elements plac
 
 ## Possible approaches
 
-One of possible approaches is to crop the root's bounding box to the size of the observed element. This approach has several drawbacks.
+One of possible approaches is to crop the `root` bounding box to the size of the observed element by setting negative values to `rootMargin`. This approach has several drawbacks.
 
 When an observed element is partly overlapped by its scrollable parent container, it creates a situation in which `intersectionRatio` doesn't change when the element moves until it is fully visible, therefore position change can not be detected.
 
@@ -60,11 +60,11 @@ Having to handle events in combination with `IntersectionObserver`, that is code
 
 Moreover, in event handlers observing position change implies `getBoundingClientRect()` invokations. Not only it may be expensive, data aquired in one phase of asynchronous execution may turn out already stale in other phase where it is consumed.
 
-### When you shouldn't rely on `intersectionRect` and `intersectionRatio`
+### When you shouldn't rely on `intersectionRect` and `intersectionRatio`?
 
-As I already mentioned this case above, when a target element can possibly be partly overlapped by its parent scrollable container. If this is the case, it is better to calculate intersection using `rootBounds` and `boundingClientRect` rectangles, because `intersectionRect` and `intersectionRatio` reflect intersection of a target's visible part rather than the whole target.
+As I already mentioned this case above, when a target element can possibly be partly overlapped by its parent scrollable container. If this is the case, it is better to calculate intersection using coordinates of `rootBounds` and `boundingClientRect` rectangles, because `intersectionRect` and `intersectionRatio` reflect intersection of a target's visible part rather than the whole target.
 
-### When you shouldn't use `visualViewport` with `IntersectionObserver`
+### When you shouldn't use `visualViewport` with `IntersectionObserver`?
 
 It may seem logical at first glance to use `visualViewport.height` or `window.innerHeight` in order to calculate the bottom margin of `rootMargin`. This will not be consistent among mobile and desktop screens if `minimum-scale=1.0` is not specified in the meta tag.
 
