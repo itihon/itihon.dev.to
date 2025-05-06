@@ -2,5 +2,9 @@
   {
     "id": 2388255,
     "relativePathToArticle": "./blog-posts/detecting-size-and-position-change-of-a-dom-element/index.md"
+  },
+  {
+    "id": 2462600,
+    "relativePathToArticle": "./blog-posts/using-the-same-validation-logic-on-client-and-server-side/index.md"
   }
 ]
