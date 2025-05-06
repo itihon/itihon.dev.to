@@ -22,8 +22,8 @@ jobs:
         run: yarn --frozen-lockfile --non-interactive --no-progress
       - name: Format check
         run: yarn run prettier:check
-      - name: Readme check
-        run: yarn run embedme:check
+      - name: Embed code snippets
+        run: yarn run embedme:write
       - name: Devto
         env:
           DEV_TO_GIT_TOKEN: ${{ secrets.DEV_TO_GIT_TOKEN }}

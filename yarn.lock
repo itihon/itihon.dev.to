@@ -157,7 +157,7 @@ duplexer3@^0.1.4:
   resolved "https://registry.yarnpkg.com/duplexer3/-/duplexer3-0.1.4.tgz#ee01dd1cac0ed3cbc7fdbea37dc0a8f1ce002ce2"
   integrity sha1-7gHdHKwO08vH/b6jfcCo8c4ALOI=
 
-embedme@1.22.1:
+embedme@^1.22.1:
   version "1.22.1"
   resolved "https://registry.yarnpkg.com/embedme/-/embedme-1.22.1.tgz#5464c67d490309aec658de43f5e49ad88674bdc2"
   integrity sha512-wHLuAOI9XoCAQ322mbslIR7PQNgPGYCWrDlYw5C6fesakuhCzi6ce0BrLTZ/EEKgiHEUqcG9V3s7MGO0x1Zgig==
