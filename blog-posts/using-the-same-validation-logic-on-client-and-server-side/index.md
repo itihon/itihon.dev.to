@@ -159,6 +159,8 @@ First, I created the following folder structure:
 ```
 {% enddetails %}
 
+![validations dependency graph](./assets/validations-dep-graph.png)
+
 ## 3. Creating UI effects
 
 ```bash
@@ -207,6 +209,8 @@ First, I created the following folder structure:
 // validation/profiles/signup.js
 ```
 {% enddetails %}
+
+![profiles dependency graph](./assets/profiles-dep-graph.png)
 
 ## 5. Creating the server
 
@@ -259,5 +263,7 @@ First, I created the following folder structure:
         ├── is-password-confirmed.js
         └── is-strong-password.js
 ```
+
+![final dependency graph](./assets/final-dependency-graph.png)
 
 ## Conclusion
