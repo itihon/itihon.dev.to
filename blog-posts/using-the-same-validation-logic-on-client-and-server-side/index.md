@@ -1,14 +1,14 @@
 ---
 published: false
 title: 'Using the same validation logic on the client and server side with Isomorphic-validation.'
-cover_image: 'https://raw.githubusercontent.com/itihon/itihon.dev.to/master/blog-posts/using-the-same-validation-logic-on-the-client-and-server-side/assets/cover.png'
+cover_image: 'https://raw.githubusercontent.com/itihon/itihon.dev.to/master/blog-posts/using-the-same-validation-logic-on-client-and-server-side/assets/cover.png'
 description: 'A step by step tutorial of using isomorphic-validation javascript library on the client and server side.'
 tags: webdev, javascript, validation, api
 series:
 canonical_url:
 ---
 
-In this post I want to briefly describe the usage of **Isomorphic-validation**, a [javascript validation library](https://itihon.github.io/isomorphic-validation/) that was intended to be used on client and server side and make the process of validating user input seamless across your application.
+In this post I want to briefly describe the usage of **Isomorphic-validation**, a [javascript validation library](https://itihon.github.io/isomorphic-validation/) that was intended to be used on the client and server side and make the process of validating user input seamless across your application.
 
 In the two previous posts I covered some aspects of using this library on the client side by creating a sign-in and sign-up form:
 
@@ -19,34 +19,6 @@ In the two previous posts I covered some aspects of using this library on the cl
 
 ## 0. Setting up the project
 
-```bash
-.
-├── index.js
-⊟── public
-│   ⊞─── bundles
-│   ├── signin.html
-│   ├── signup.html
-│   └── style.css
-├── repository.js
-├── rollup.config.mjs
-⊟── validation
-    ⊟── profiles
-    │   ├── signin.js
-    │   └── signup.js
-    ⊟── ui
-    │   └── apply-effects.js
-    ⊟── validations
-    │   ├── email.js
-    │   └── password.js
-    ⊟── validators
-        ├── is-email.js
-        ├── is-email-not-registered.js
-        ├── is-email-not-registered-s.js
-        ├── is-max-length.js
-        ├── is-min-length.js
-        ├── is-password-confirmed.js
-        └── is-strong-password.js
-```
 
 First, I created the following folder structure:
 
@@ -256,5 +228,36 @@ First, I created the following folder structure:
 // index.js
 ```
 {% enddetails %}
+
+## Final result
+
+```bash
+.
+├── index.js
+⊟── public
+│   ⊞─── bundles
+│   ├── signin.html
+│   ├── signup.html
+│   └── style.css
+├── repository.js
+├── rollup.config.mjs
+⊟── validation
+    ⊟── profiles
+    │   ├── signin.js
+    │   └── signup.js
+    ⊟── ui
+    │   └── apply-effects.js
+    ⊟── validations
+    │   ├── email.js
+    │   └── password.js
+    ⊟── validators
+        ├── is-email.js
+        ├── is-email-not-registered.js
+        ├── is-email-not-registered-s.js
+        ├── is-max-length.js
+        ├── is-min-length.js
+        ├── is-password-confirmed.js
+        └── is-strong-password.js
+```
 
 ## Conclusion
