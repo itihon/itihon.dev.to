@@ -138,8 +138,3 @@ This looks more straithforward and implies much less edge cases to handle. If po
 
 
 ## Conclusion
-
-```scss
-// code/public/style.css
-
-```

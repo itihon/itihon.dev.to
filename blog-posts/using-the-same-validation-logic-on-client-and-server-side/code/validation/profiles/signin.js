@@ -5,11 +5,7 @@ import applyEffects from '../ui/apply-effects.js';
 
 /** Creating profiles */
 
-const [signinForm, signinV] = Validation.profile(
-  '[name="signinForm"]',
-  ['email', 'password'],
-  [emailV, passwordV],
-);
+const [signinForm, signinV] = Validation.profile('[name="signinForm"]', ['email', 'password'], [emailV, passwordV]);
 
 /** UI effects */
 

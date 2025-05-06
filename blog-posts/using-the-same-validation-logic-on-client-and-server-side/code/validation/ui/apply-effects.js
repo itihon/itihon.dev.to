@@ -70,37 +70,33 @@ const waitMsg = {
   style: { color: 'steelblue', fontSize: '12px', padding: '4px' },
 };
 
-const applyEffects = (validationProfile) => {
+const applyEffects = validationProfile => {
   const [form, groupingValidation] = validationProfile;
 
   form.addEventListener(
     'input',
     Validation.group(
+      groupingValidation.validations.map((validation, idx) => {
+        const iconEID = form[idx].name + 'icon';
+        const errMsgEID = form[idx].name + 'error';
+        const outlineEID = form[idx].name + 'outline';
+        const formField = form[idx].parentNode;
 
-      groupingValidation.validations.map(
-        (validation, idx) => {
-
-          const iconEID = form[idx].name + 'icon';
-          const errMsgEID = form[idx].name + 'error';
-          const outlineEID = form[idx].name + 'outline';
-          const formField = form[idx].parentNode;
-
-          return validation
-            .started(applyOutline(formField, remainedOutline, outlineEID))
-            .validated(applyOutline(formField, delayedOutline, outlineEID))
-            .changed(applyOutline(formField, changedOutline, outlineEID))
-            .started(applyBox(formField, editIcon, iconEID))
-            .started(applyBox(formField, loadIcon, iconEID))
-            .validated(applyBox(formField, validIcon, iconEID))
-            .changed(applyBox(formField, validIcon, iconEID))
-            .started(applyBox(formField, waitMsg, errMsgEID))
-            .validated(applyBox(formField, errMsg, errMsgEID))
-            .changed(applyBox(formField, changedMsg, errMsgEID));
-        }
-      )
+        return validation
+          .started(applyOutline(formField, remainedOutline, outlineEID))
+          .validated(applyOutline(formField, delayedOutline, outlineEID))
+          .changed(applyOutline(formField, changedOutline, outlineEID))
+          .started(applyBox(formField, editIcon, iconEID))
+          .started(applyBox(formField, loadIcon, iconEID))
+          .validated(applyBox(formField, validIcon, iconEID))
+          .changed(applyBox(formField, validIcon, iconEID))
+          .started(applyBox(formField, waitMsg, errMsgEID))
+          .validated(applyBox(formField, errMsg, errMsgEID))
+          .changed(applyBox(formField, changedMsg, errMsgEID));
+      }),
     )
-    .started(applyAccess(form.submitBtn, disabledAccess))
-    .validated(applyAccess(form.submitBtn, delayedAccess))
+      .started(applyAccess(form.submitBtn, disabledAccess))
+      .validated(applyAccess(form.submitBtn, delayedAccess)),
   );
 };
 
