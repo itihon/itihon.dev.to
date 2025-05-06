@@ -17,6 +17,12 @@ In the two previous posts I covered some aspects of using this library on the cl
 
  Here I will show why this library is actually isomorphic. I'm going to incorporate that sign-in and sign-up examples into a simple `Node.js` application.
 
+ If you want to run this project locally it is here:
+
+ {% cta https://github.com/itihon/signup_signin_example_actualized %}
+ View on Github 
+ {% endcta %}
+
 ## 0. Setting up the project
 
 
