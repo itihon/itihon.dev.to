@@ -25,7 +25,6 @@ In the two previous posts I covered some aspects of using this library on the cl
 
 ## 0. Setting up the project
 
-
 First, I created the following folder structure:
 
 ```bash
@@ -36,7 +35,6 @@ First, I created the following folder structure:
 │   ├── signup.html
 │   └── style.css
 ├── repository.js
-├── rollup.config.mjs
 ⊟─── validation
     ⊞── profiles
     ⊞── ui
@@ -47,12 +45,6 @@ First, I created the following folder structure:
 {% details repository.js %}
 ```js
 // repository.js
-```
-{% enddetails %}
-
-{% details rollup.config.mjs %}
-```js
-// rollup.config.mjs
 ```
 {% enddetails %}
 
@@ -74,13 +66,14 @@ First, I created the following folder structure:
 ```
 {% enddetails %}
 
+I didn't want to set up the whole database for this simple demonstration, so I just created a mock repository file with registerd e-mail addresses in order to implement the checking an e-mail for existance functionality.
+
 ## 1. Preparing validators
 
 ```bash
 .
 ⊞─── public
 ├── repository.js
-├── rollup.config.mjs
 ⊟─── validation
     ⊞── profiles
     ⊞── ui
@@ -143,7 +136,6 @@ First, I created the following folder structure:
 .
 ⊞─── public
 ├── repository.js
-├── rollup.config.mjs
 ⊟─── validation
     ⊞── profiles
     ⊞── ui
@@ -173,7 +165,6 @@ First, I created the following folder structure:
 .
 ⊞─── public
 ├── repository.js
-├── rollup.config.mjs
 ⊟─── validation
     ⊞── profiles
     ⊟── ui
@@ -194,7 +185,6 @@ First, I created the following folder structure:
 .
 ⊟── public
 ├── repository.js
-├── rollup.config.mjs
 ⊟── validation
     ⊟── profiles
     │   ├── signin.js
@@ -225,7 +215,6 @@ First, I created the following folder structure:
 ├── index.js
 ⊞─── public
 ├── repository.js
-├── rollup.config.mjs
 ⊟── validation
     ⊞─── profiles
     ⊞─── ui
@@ -250,7 +239,6 @@ First, I created the following folder structure:
 │   ├── signup.html
 │   └── style.css
 ├── repository.js
-├── rollup.config.mjs
 ⊟── validation
     ⊟── profiles
     │   ├── signin.js
