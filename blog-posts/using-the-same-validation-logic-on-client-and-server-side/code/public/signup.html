@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sign up</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <form action="signup" method="post" name="signupForm" autocomplete="off">
+      <h2>Sign up</h2>
+
+      <label class="form-field" for="email">
+        <input type="text" name="email" id="email" required>
+        <span class="field-title">E-mail</span>
+      </label>
+
+      <label class="form-field" for="password">
+        <input type="password" name="password" id="password" required>
+        <span class="field-title">Password</span>
+      </label>
+      
+      <label class="form-field" for="pwdConfirm">
+        <input type="password" name="pwdConfirm" id="pwdConfirm" required>
+        <span class="field-title">Password confirmation</span>
+      </label>
+
+      <input type="submit" name="submitBtn" disabled>
+    </form>
+    <script type="module" src="bundles/signup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "signup_signin_example_actualized",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --import=extensionless/register --watch index.js",
+    "bundle": "rollup -c",
+    "bundle:watch": "pnpm run bundle --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.6.2",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.2",
+    "extensionless": "^1.9.9",
+    "isomorphic-validation": "^0.11.0",
+    "validator": "^13.15.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "dependency-cruiser": "^16.10.1",
+    "rollup": "^4.35.0",
+    "rollup-plugin-cleandir": "^3.0.0",
+    "rollup-plugin-ignore": "^1.0.10"
+  }
+}

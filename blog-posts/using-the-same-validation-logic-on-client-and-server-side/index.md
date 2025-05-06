@@ -68,214 +68,31 @@ First, I created the following folder structure:
 
 {% details repository.js %}
 ```js
-/**
- * Mock repository
- */
-
-const existingEmails = new Map([ 
-    ['ww@ww.ww', 1], ['xx@xx.xx', 2], ['yy@yy.yy', 3], ['zz@zz.zz', 4],
-]);
-
-export default {
-    async getUserIdBy({ email = '' }) {
-        return existingEmails.get(email);
-    }
-}
+// repository.js
 ```
 {% enddetails %}
 
 {% details rollup.config.mjs %}
 ```js
-import ignore from 'rollup-plugin-ignore';
-import { cleandir } from "rollup-plugin-cleandir";
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-
-export default {
-    input: [
-        'validation/profiles/signin.js',
-        'validation/profiles/signup.js',
-    ],
-    output: {
-        format: 'esm',
-        dir: 'public/bundles/',
-        entryFileNames: '[name].js',
-    },
-    plugins: [
-        ignore('../../repository.js'),
-        nodeResolve(),
-        cleandir('public/bundles'),
-    ],
-};
+// rollup.config.mjs
 ```
 {% enddetails %}
 
 {% details public/signin.html %}
 ```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Sign in</title>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <form action="signin" method="post" name="signinForm" autocomplete="off">
-      <h2>Sign in</h2>
-
-      <label class="form-field" for="email">
-        <input type="text" name="email" id="email" required>
-        <span class="field-title">E-mail</span>
-      </label>
-
-      <label class="form-field" for="password">
-        <input type="password" name="password" id="password" required>
-        <span class="field-title">Password</span>
-      </label>
-
-      <input type="submit" name="submitBtn" disabled>
-    </form>
-    <script type="module" src="bundles/signin.js"></script>
-  </body>
-</html>
+<!-- public/signin.html -->
 ```
 {% enddetails %}
 
 {% details public/signup.html %}
 ```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Sign up</title>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <form action="signup" method="post" name="signupForm" autocomplete="off">
-      <h2>Sign up</h2>
-
-      <label class="form-field" for="email">
-        <input type="text" name="email" id="email" required>
-        <span class="field-title">E-mail</span>
-      </label>
-
-      <label class="form-field" for="password">
-        <input type="password" name="password" id="password" required>
-        <span class="field-title">Password</span>
-      </label>
-      
-      <label class="form-field" for="pwdConfirm">
-        <input type="password" name="pwdConfirm" id="pwdConfirm" required>
-        <span class="field-title">Password confirmation</span>
-      </label>
-
-      <input type="submit" name="submitBtn" disabled>
-    </form>
-    <script type="module" src="bundles/signup.js"></script>
-  </body>
-</html>
+<!-- public/signup.html -->
 ```
 {% enddetails %}
 
 {% details public/style.css %}
-```css
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  font-family: Helvetica;
-}
-
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: lightslategray;
-}
-
-h2 {
-  text-align: center;
-  width: 100%;
-}
-
-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 48px;
-  justify-content: flex-start;
-  align-items: center;
-  width: min-content;
-  padding-inline: 24px;
-  padding-block: 32px;
-  border: 1px solid slategray;
-  border-radius: 2px;
-
-  background: rgb(255,255,255);
-  background: linear-gradient(123deg, rgba(255,255,255,1) 24%, rgba(244,250,255,1) 51%, rgba(255,255,255,1) 77%);
-}
-
-label {
-  padding: 4px;
-  background-color: white;
-}
-
-input { 
-  height: 32px;
-  width: 100%;
-  border: none;
-  background: none;
-  outline: none;
-  font-size: 16px;
-}
-
-input[type="submit"] {
-  height: 42px;
-  border: 1px solid lightslategray;
-  background-color: slategray;
-  color: white;
-  transition: opacity .1s;
-}
-
-input[type="submit"]:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-input[type="submit"]:not(:disabled):hover {
-  filter: brightness(1.1);
-}
-
-.form-field {
-  width: 220px;
-  position: relative;
-  border: 1px solid slategray;
-  border-radius: 2px;
-  cursor: text;
-}
-
-.field-title {
-  position: absolute;
-  top: 0;
-  padding-block: 4px;
-  display: grid;
-  align-items: center;
-  height: 100%;
-  color: slategray;
-  transition: font-size .1s, height .1s ease-out;
-}
-
-.form-field > input:valid + .field-title {
-  font-size: 12px;
-  height: 20px;
-}
-
-.form-field > input:valid {
-  padding-top: 14px; 
-}
+```scss
+// public/style.css
 ```
 {% enddetails %}
 
@@ -322,3 +139,7 @@ This looks more straithforward and implies much less edge cases to handle. If po
 
 ## Conclusion
 
+```scss
+// code/public/style.css
+
+```
