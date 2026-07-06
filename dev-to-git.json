@@ -6,5 +6,9 @@
   {
     "id": 2462600,
     "relativePathToArticle": "./blog-posts/using-the-same-validation-logic-on-client-and-server-side/index.md"
+  },
+  {
+    "id": 4081767,
+    "relativePathToArticle": "./blog-posts/virtualizing-responsive-grid/index.md"
   }
 ]
