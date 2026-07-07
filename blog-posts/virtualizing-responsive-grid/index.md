@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: 'Virtualizing Dynamic Lists and Responsive Grids Without Offset Tables or Size Estimation'
 cover_image: 'https://raw.githubusercontent.com/itihon/itihon.dev.to/master/blog-posts/virtualizing-responsive-grid/assets/cover-two-scales-optimized.png'
 description: 'An alternative approach to virtualizing dynamic lists and responsive grids.'
@@ -8,9 +8,9 @@ series:
 canonical_url:
 ---
 
-In this article I'd like to share my approach to virtualizing lists with items of unknown height. Most existing virtualization libraries solve this problem by estimating item sizes, measuring the rendered elements, and continuously correcting those estimates as more information becomes available.
+In this article, I'd like to share my approach to virtualizing lists with items of unknown height. Most existing virtualization libraries solve this problem by estimating item sizes, measuring the rendered elements, and continuously correcting those estimates as more information becomes available.
 
-Here I'd like to describe a method that takes a different approach. Instead of relying on accumulated item offsets, it maps item indices directly to the scrollbar position. This makes it possible to determine the visible range with good accuracy without knowing — even approximately — the sizes of all preceding items, using only simple math and the browser's native layout and positioning mechanics.
+Here I'd like to describe a method that takes a different direction. Instead of relying on accumulated item offsets, it maps item indices directly to the scrollbar position. This makes it possible to determine the visible range with good accuracy without knowing — even approximately — the sizes of all preceding items, using only simple math and the browser's native layout and positioning mechanics.
 
 Live demos in TypeScript, React, Vue, and Angular are available at the [Layout Virtual homepage](https://itihon.github.io/layout-virtual/).
  
@@ -62,7 +62,7 @@ Suppose there exists an item whose index corresponds to the current scrollbar po
 index / itemsCount = scrollTop / (scrollHeight - clientHeight)
 ```
 
-This specific index, which resides somewhere within the visible range, will serve as our **anchor**. Its physical position inside the viewport is determined by the **viewport's anchor point**, calculated by multiplying the scroll percentage (the right side of the formula above) by the viewport height:
+This specific index, which resides somewhere within the visible range, will serve as our **anchor**. Its position inside the viewport is determined by the **viewport's anchor point**, calculated by multiplying the scroll percentage (the right side of the formula above) by the viewport height:
 
 ```
 viewportAnchor = scrollTop / (scrollHeight - clientHeight) * clientHeight
@@ -97,31 +97,31 @@ If we change the total item count in our example from 110 to exactly 100, the el
 
 **Essentially, this anchor element's height is the only height that needs to be measured in real time to determine the position of all visible elements. There's no need to know the absolute or even approximate sizes of all the other elements. Consequently, there is no need to maintain cumulative offset arrays, perform binary searches, or deal with complex range tree data structures.**
 
-**The entire task boils down to rendering a range of elements that includes the anchor item, and then positioning that entire range so that the anchor aligns  with the viewport's current anchor point. In other words, we keep the scrollbar and the indices synchronized so that left and right sides of our first formula remain  equal. If this ratio is maintained, the physical scrollbar and the virtual elements will always converge at the beginning and the end of the list regardless of the actual heights of the elements.**
+**The entire task boils down to rendering a range of elements that includes the anchor item, and then positioning that entire range so that the anchor aligns  with the viewport's current anchor point. In other words, we keep the scrollbar and the indices synchronized so that left and right sides of our first formula remain  equal. If this ratio is maintained, the scrollbar and the virtual elements will always converge at the beginning and the end of the list regardless of the actual heights of the elements.**
 
 ---
 
-To achieve this, we need to decouple the scrollbar from the scroll canvas so that the elements move natively along with the canvas while the scrollbar independently reflects the progression of item indices.
+To achieve this, we need to decouple the scrollbar from the scrolling surface so that the rendered elements move together with the surface while the scrollbar independently reflects the progression of item indices.
 
 There's one more challenge. Responsive Grid layout implies rendering elements in normal document flow — without wrappers, transformations (`transform: translate(...)`), or absolute positioning. This means adding or removing elements at the top of the visible range will cause a layout shift that pushes the rest of the content around, which we must compensate for. While it is easy to calculate this shift when scrolling down (since the heights of the elements being removed from the top are already known), how do we handle adding elements of completely unknown heights to the top when a user scrolls up?
 
 ## Container Anatomy
 
-To solve this layout shift, we can imploy native Flexbox mechanics — specifically, the `flex-grow` property. We will align our content using two layout spacers (placeholders) at the top and bottom. One spacer maintains a fixed height, while the second one stretches to fill all remaining empty space, acting like a "spring" pushing the content against a rigid "stopper."
+To solve this layout shift, we can employ native Flexbox mechanics — specifically, the `flex-grow` property. We will align our content using two layout spacers (placeholders) at the top and bottom. One spacer maintains a fixed height, while the second one stretches to fill all remaining empty space, acting like a "spring" pushing the content against a rigid "stopper."
 
 When scrolling down and unmounting elements from the top, we compensate for the upward content shift by expanding the height of the top "stopper" by the exact height of the removed elements. Meanwhile, as new elements mount at the bottom, the bottom "spring" naturally compresses by the correct amount.
 
-![removeing-items-from-the-top](./assets/article_layout_virtual_1.png)
+![removing-items-from-the-top](./assets/article_layout_virtual_1.png)
 
 When scrolling back up, we simply swap the roles of the two spacers: the bottom one becomes the rigid "stopper," and the top one turns into the dynamic "spring". Now, we don't have to worry about adding elements of unknown heights to the top; the browser's native layout engine takes care of it for us.
 
 ![adding-items-to-the-top](./assets/article_layout_virtual_2.png)
 
-To decouple the scrollbar from the scroll canvas, we use two scrollable containers nested inside one another, making sure to hide the scrollbar of the inner container which serves as the viewport.
+To decouple the scrollbar from the scrolling surface, we use two scrollable containers nested inside one another, making sure to hide the scrollbar of the inner container which serves as the viewport.
 
-![decouple-scrollbar-from-canvas](./assets/article_layout_virtual_3.png)
+![decouple-scrollbar-from-surface](./assets/article_layout_virtual_3.png)
 
-When a scroll event originates from the inner container (the viewport), we render the calculated range of items and adjust the outer container's scrollbar to align with the anchor element's position. It’s worth noting that if the anchor hasn't reached its target anchor point yet, we simply increment (or decrement, depending on the direction) the outer scrollbar position by 1px and wait for it to catch up. This step is likely the primary source of minor layout variance. Conversely, when the scroll event comes from the outer container, we render the corresponding item range and adjust the inner container's canvas position to guide the anchor element exactly where it belongs.
+When a scroll event originates from the inner container (the viewport), we render the calculated range of items and adjust the outer container's scrollbar to align with the anchor element's position. It’s worth noting that if the anchor hasn't reached its target anchor point yet, we simply increment (or decrement, depending on the direction) the outer scrollbar position by 1px and wait for it to catch up. This step is likely the primary source of minor layout variance. Conversely, when the outer container generates the scroll event, we render the corresponding item range and reposition the inner container's scrolling surface so that the anchor element aligns with the viewport's anchor point.
 
 The virtual scroll height is estimated using the average of the known smallest and largest item heights:
 
@@ -143,7 +143,7 @@ Rendering itself is based on the difference between two ranges: the currently re
 
 If the two ranges do not intersect — for example, after a fast scroll — the current range is discarded completely and the new one is rendered from scratch.
 
-![intersected-ranges](./assets/article_layout_virtual_5.png)
+![not-intersected-ranges](./assets/article_layout_virtual_5.png)
 
 However, this introduces another problem. Since we render elements based on a known minimal height, how do we avoid rendering far more elements than necessary?
 
@@ -156,11 +156,11 @@ As a result, the rendered content is always shifted slightly ahead of the user's
 
 As long as the rendered content extends beyond the overscan area, no additional elements need to be rendered. In other words, we "wait" until the elements enter the overscan area during further scrolling before adding a new portion from the calculated range. While slightly more nodes than strictly necessary might temporarily reside in the DOM, further excessive rendering is kept in check by this natural boundary.
 
-![intersected-ranges](./assets/article_layout_virtual_6.png)
+![limited-range](./assets/article_layout_virtual_6.png)
 
 The resulting behavior of the rendered range boundaries looks like this:
 
-![intersected-ranges](./assets/content-layer-boundaries.gif)
+![content-boundaries-in-action](./assets/content-layer-boundaries.gif)
 
 ## CSS Grid Support
 
@@ -189,9 +189,9 @@ One extra constraint: to prevent items from jumping between rows as the rendered
 
 The idea came from asking: what if we avoided computing absolute offsets entirely and looked at the problem from a different angle? At any given moment we only see a slice of the list — so why compute the invisible parts? The goal isn't to position virtual items exactly where they'd be in a fully-rendered real container. The goal is to create the **visual impression** that rendered content matches the scrollbar position. By visualizing this as two distinct scales — a linear scale representing scroll percentages and a non-linear scale representing item indices of arbitrary heights — the challenge simply became finding a reliable way to map them together.
 
-The result is an algorithm that is lightweight, predictable, and naturally resilient to dynamic content and responsive CSS Grid layouts. Instead of maintaining accumulated offsets for every item, it keeps the scrollbar synchronized with a single anchor item and lets the browser's layout engine do what it already does best.
+The result is an algorithm that is lightweight, predictable, and naturally resilient to dynamic content and responsive CSS Grid layouts. Instead of maintaining accumulated offsets for every item and repeatedly correcting them, it keeps the scrollbar synchronized with a single anchor item and lets the browser's layout engine do what it already does best.
 
-Like any virtualization strategy, this approach has its own trade-offs and isn't intended as a universal replacement for existing techniques. But I think it simplifies virtualization for dynamic lists and responsive grids.
+Like any virtualization strategy, this approach has its own trade-offs and isn't intended as a universal replacement for existing techniques. But it simplifies virtualization for dynamic lists and responsive grids.
 
 ---
  
