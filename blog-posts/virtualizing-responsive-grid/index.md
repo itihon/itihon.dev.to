@@ -1,7 +1,7 @@
 ---
 published: false
-title: 'Virtualizing Dynamic Lists and Responsive Grid Layout Without Binary Search or Estimated Item Heights'
-cover_image: 'https://raw.githubusercontent.com/itihon/itihon.dev.to/master/blog-posts/virtualizing-responsive-grid/assets/cover-two-scales.png'
+title: 'Virtualizing Dynamic Lists and Responsive Grids Without Offset Tables or Size Estimation'
+cover_image: 'https://raw.githubusercontent.com/itihon/itihon.dev.to/master/blog-posts/virtualizing-responsive-grid/assets/cover-two-scales-optimized.png'
 description: 'An alternative approach to virtualizing dynamic lists and responsive grids.'
 tags: webdev, react, vue, angular
 series:
