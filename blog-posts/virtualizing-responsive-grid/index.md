@@ -1,7 +1,7 @@
 ---
 published: false
-title: 'Virtualizing Responsive Grid Layouts Without Binary Search or Estimated Item Heights'
-cover_image: 'https://raw.githubusercontent.com/itihon/layout-virtual/main/homepage/src/assets/simplescreenrecorder-2026-07-06_15.08.42-ezgif.com-optimize.gif'
+title: 'Virtualizing Dynamic Lists and Responsive Grid Layout Without Binary Search or Estimated Item Heights'
+cover_image: 'https://raw.githubusercontent.com/itihon/itihon.dev.to/master/blog-posts/virtualizing-responsive-grid/assets/cover-two-scales.png'
 description: 'An alternative approach to virtualizing dynamic lists and responsive grids.'
 tags: webdev, react, vue, angular
 series:
@@ -187,5 +187,16 @@ One extra constraint: to prevent items from jumping between rows as the rendered
 
 ## Conclusion
 
+The idea came from asking: what if we avoided computing absolute offsets entirely and looked at the problem from a different angle? At any given moment we only see a slice of the list — so why compute the invisible parts? The goal isn't to position virtual items exactly where they'd be in a fully-rendered real container. The goal is to create the **visual impression** that rendered content matches the scrollbar position. By visualizing this as two distinct scales — a linear scale representing scroll percentages and a non-linear scale representing item indices of arbitrary heights — the challenge simply became finding a reliable way to map them together.
+
+The result is an algorithm that is lightweight, predictable, and naturally resilient to dynamic content and responsive CSS Grid layouts. Instead of maintaining accumulated offsets for every item, it keeps the scrollbar synchronized with a single anchor item and lets the browser's layout engine do what it already does best.
+
+Like any virtualization strategy, this approach has its own trade-offs and isn't intended as a universal replacement for existing techniques. But I think it simplifies virtualization for dynamic lists and responsive grids.
+
+---
+ 
+You can try the live demos (scroll, resize, watch the algorithm in action) with React, Vue, Angular, and vanilla TypeScript at the **[Layout Virtual homepage](https://itihon.github.io/layout-virtual/)**.
+ 
+If the idea resonates, check out the [repository](https://github.com/itihon/layout-virtual) — stars, feedback in the comments, and pull requests are all very welcome!
 
 
