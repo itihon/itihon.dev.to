@@ -95,10 +95,97 @@ If we change the total item count in our example from 110 to exactly 100, the el
 
 ---
 
-> Essentially, this anchor element's height is the only height that needs to be measured in real time to determine the position of all visible elements. There's no need to know the absolute or even approximate sizes of all the other elements. Consequently, there is no need to maintain cumulative offset arrays, perform binary searches, or deal with complex range tree data structures.
->
-> The entire task boils down to rendering a range of elements that encompasses the anchor item, and then positioning that entire range so that the anchor aligns perfectly with the viewport's current anchor point. In other words, we keep the scrollbar and the indices synchronized so that both sides of our first formula remain perfectly equal. If this ratio is maintained, the physical scrollbar and the virtual elements will always converge at the beginning and the end of the list regardless of the actual heights of the elements.
+**Essentially, this anchor element's height is the only height that needs to be measured in real time to determine the position of all visible elements. There's no need to know the absolute or even approximate sizes of all the other elements. Consequently, there is no need to maintain cumulative offset arrays, perform binary searches, or deal with complex range tree data structures.**
+
+**The entire task boils down to rendering a range of elements that includes the anchor item, and then positioning that entire range so that the anchor aligns  with the viewport's current anchor point. In other words, we keep the scrollbar and the indices synchronized so that left and right sides of our first formula remain  equal. If this ratio is maintained, the physical scrollbar and the virtual elements will always converge at the beginning and the end of the list regardless of the actual heights of the elements.**
+
+---
 
 To achieve this, we need to decouple the scrollbar from the scroll canvas so that the elements move natively along with the canvas while the scrollbar independently reflects the progression of item indices.
 
 There's one more challenge. Responsive Grid layout implies rendering elements in normal document flow — without wrappers, transformations (`transform: translate(...)`), or absolute positioning. This means adding or removing elements at the top of the visible range will cause a layout shift that pushes the rest of the content around, which we must compensate for. While it is easy to calculate this shift when scrolling down (since the heights of the elements being removed from the top are already known), how do we handle adding elements of completely unknown heights to the top when a user scrolls up?
+
+## Container Anatomy
+
+To solve this layout shift, we can imploy native Flexbox mechanics — specifically, the `flex-grow` property. We will align our content using two layout spacers (placeholders) at the top and bottom. One spacer maintains a fixed height, while the second one stretches to fill all remaining empty space, acting like a "spring" pushing the content against a rigid "stopper."
+
+When scrolling down and unmounting elements from the top, we compensate for the upward content shift by expanding the height of the top "stopper" by the exact height of the removed elements. Meanwhile, as new elements mount at the bottom, the bottom "spring" naturally compresses by the correct amount.
+
+![removeing-items-from-the-top](./assets/article_layout_virtual_1.png)
+
+When scrolling back up, we simply swap the roles of the two spacers: the bottom one becomes the rigid "stopper," and the top one turns into the dynamic "spring". Now, we don't have to worry about adding elements of unknown heights to the top; the browser's native layout engine takes care of it for us.
+
+![adding-items-to-the-top](./assets/article_layout_virtual_2.png)
+
+To decouple the scrollbar from the scroll canvas, we use two scrollable containers nested inside one another, making sure to hide the scrollbar of the inner container which serves as the viewport.
+
+![decouple-scrollbar-from-canvas](./assets/article_layout_virtual_3.png)
+
+When a scroll event originates from the inner container (the viewport), we render the calculated range of items and adjust the outer container's scrollbar to align with the anchor element's position. It’s worth noting that if the anchor hasn't reached its target anchor point yet, we simply increment (or decrement, depending on the direction) the outer scrollbar position by 1px and wait for it to catch up. This step is likely the primary source of minor layout variance. Conversely, when the scroll event comes from the outer container, we render the corresponding item range and adjust the inner container's canvas position to guide the anchor element exactly where it belongs.
+
+The virtual scroll height is estimated using the average of the known smallest and largest item heights:
+
+```
+scrollHeightFillerSize = (minItemHeight + maxItemHeight) / 2 * itemsCount
+```
+
+## Rendering
+
+Since the sizes of newly inserted items are unknown, the viewport is filled based on the minimum known item height to guarantee that enough items are rendered to cover the visible area.
+
+Rendering itself is based on the difference between two ranges: the currently rendered range and the newly calculated range. The update algorithm is straightforward:
+
+- items that exist only in the rendered range are removed;
+- items that belong to both ranges remain untouched;
+- items that exist only in the calculated range are inserted.
+
+![intersected-ranges](./assets/article_layout_virtual_4.png)
+
+If the two ranges do not intersect — for example, after a fast scroll — the current range is discarded completely and the new one is rendered from scratch.
+
+![intersected-ranges](./assets/article_layout_virtual_5.png)
+
+However, this introduces another problem. Since we render elements based on a known minimal height, how do we avoid rendering far more elements than necessary?
+
+To prevent excessive rendering, the calculated range is constrained on both sides:
+
+- on one side by the minimum (or maximum, depending on the scroll direction) visible index;
+- on the other by an overscan buffer (`overscanHeight`) in the direction of scrolling.
+
+As a result, the rendered content is always shifted slightly ahead of the user's movement.
+
+As long as the rendered content extends beyond the overscan area, no additional elements need to be rendered. In other words, we "wait" until the elements enter the overscan area during further scrolling before adding a new portion from the calculated range. While slightly more nodes than strictly necessary might temporarily reside in the DOM, further excessive rendering is kept in check by this natural boundary.
+
+![intersected-ranges](./assets/article_layout_virtual_6.png)
+
+The resulting behavior of the rendered range boundaries looks like this:
+
+![intersected-ranges](./assets/content-layer-boundaries.gif)
+
+## CSS Grid Support
+
+To make this entire approach work seamlessly with a multi-column grid, we only need to introduce one additional parameter into our equations: the column count, which can be obtained directly from the computed styles:
+
+```js
+columnsCount = getComputedStyle(contentLayer).gridTemplateColumns.split(' ').length
+```
+Derive row count:
+
+```js
+rowsCount = Math.ceil(itemsCount / columnsCount)
+```
+
+Now, in our first formula, the anchor index no longer relates to the absolute item count, but rather the row count:
+
+```
+index / rowsCount = scrollTop / (scrollHeight - clientHeight)
+```
+
+In other words, the anchor is no longer an individual item — it becomes a row. Supporting the native CSS Grid layout simply means shifting our math from item indices to row indices. The rest of the algorithm is identical.
+
+One extra constraint: to prevent items from jumping between rows as the rendered range changes, items must always be inserted and removed in groups whose size is a multiple of the number of columns.
+
+## Conclusion
+
+
+
