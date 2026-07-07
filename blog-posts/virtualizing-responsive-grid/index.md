@@ -8,9 +8,9 @@ series:
 canonical_url:
 ---
 
-In this article I'd like to share a different approach to virtualizing lists with items of unknown height. Most existing virtualization libraries solve this problem by estimating item sizes, measuring the rendered elements, and continuously correcting those estimates as more information becomes available.
+In this article I'd like to share my approach to virtualizing lists with items of unknown height. Most existing virtualization libraries solve this problem by estimating item sizes, measuring the rendered elements, and continuously correcting those estimates as more information becomes available.
 
-The method described here takes a different approach. Instead of relying on accumulated item offsets, it maps item indices directly to the scrollbar position. This makes it possible to determine the visible range with good accuracy without knowing — even approximately — the sizes of all preceding items, using only simple math and the browser's native layout and positioning mechanics.
+Here I'd like to describe a method that takes a different approach. Instead of relying on accumulated item offsets, it maps item indices directly to the scrollbar position. This makes it possible to determine the visible range with good accuracy without knowing — even approximately — the sizes of all preceding items, using only simple math and the browser's native layout and positioning mechanics.
 
 Live demos in TypeScript, React, Vue, and Angular are available at the [Layout Virtual homepage](https://itihon.github.io/layout-virtual/).
  
@@ -50,10 +50,55 @@ From this example, we can derive the following relationship:
 viewportTopIndex / (itemsCount - viewportItemCount) = scrollTop / (scrollHeight - clientHeight)
 ```
 
-> **The first visible index relates to the total number of scrollable items the same way scroll position relates to the total scroll range.**
+> The first visible index relates to the total number of scrollable items the same way scroll position relates to the total scroll range.
 
 But in a dynamic list, how can we possibly know how many elements (`viewportItemCount`) will fit into the viewport?
 
 ## Anchor Points
 
-Suppose there exists an item whose index corresponds to the current scrollbar position. This item doesn't have to be the first visible one — it can be anywhere inside the visible range.
+Suppose there exists an item whose index corresponds to the current scrollbar position. This item doesn't necessarily have to be the first visible one — it can be anywhere inside the visible range. If we remove the unknown terms from the previous equation, we are left with a direct ratio: an item's index relative to the total item count equals the current scroll percentage:
+
+```
+index / itemsCount = scrollTop / (scrollHeight - clientHeight)
+```
+
+This specific index, which resides somewhere within the visible range, will serve as our **anchor**. Its physical position inside the viewport is determined by the **viewport's anchor point**, calculated by multiplying the scroll percentage (the right side of the formula above) by the viewport height:
+
+```
+viewportAnchor = scrollTop / (scrollHeight - clientHeight) * clientHeight
+```
+
+As the scrollbar moves toward the top, the anchor point approaches the top of the viewport. As it moves toward the bottom, the anchor point shifts toward the bottom. At 50%, the anchor point is exactly in the middle of the viewport.
+
+Now, to determine the precise position of this anchor element within the visible area, let's derive the index from our formula:
+
+```
+anchorIndex = scrollTop / (scrollHeight - clientHeight) * itemsCount
+```
+
+Using our previous 110-item example, let's calculate the anchor index at a 25% scroll position:
+
+```
+0.25 * 110 = 27.5 (where 27 is the index, and 0.5 represents 50% of the element's height)
+```
+
+The fractional remainder (0.5) in this result tells us the exact percentage of its own height that this element must be shifted above the viewport's anchor point. 
+
+> In other words, at 25% scroll position, the element with index 27 will sit exactly half its height above the anchor point — which itself is positioned 25% of the viewport height below the top edge of the viewport.
+
+If we change the total item count in our example from 110 to exactly 100, the elements that used to be the first visible items now become the anchors themselves. Meaning:
+
+- 0% scroll - index 0
+- 25% scroll - index 25
+- 50% scroll - index 50
+- ...and so on.
+
+---
+
+> Essentially, this anchor element's height is the only height that needs to be measured in real time to determine the position of all visible elements. There's no need to know the absolute or even approximate sizes of all the other elements. Consequently, there is no need to maintain cumulative offset arrays, perform binary searches, or deal with complex range tree data structures.
+>
+> The entire task boils down to rendering a range of elements that encompasses the anchor item, and then positioning that entire range so that the anchor aligns perfectly with the viewport's current anchor point. In other words, we keep the scrollbar and the indices synchronized so that both sides of our first formula remain perfectly equal. If this ratio is maintained, the physical scrollbar and the virtual elements will always converge at the beginning and the end of the list regardless of the actual heights of the elements.
+
+To achieve this, we need to decouple the scrollbar from the scroll canvas so that the elements move natively along with the canvas while the scrollbar independently reflects the progression of item indices.
+
+There's one more challenge. Responsive Grid layout implies rendering elements in normal document flow — without wrappers, transformations (`transform: translate(...)`), or absolute positioning. This means adding or removing elements at the top of the visible range will cause a layout shift that pushes the rest of the content around, which we must compensate for. While it is easy to calculate this shift when scrolling down (since the heights of the elements being removed from the top are already known), how do we handle adding elements of completely unknown heights to the top when a user scrolls up?
